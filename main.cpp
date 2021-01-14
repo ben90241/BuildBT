@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <queue>
 
 class TreeNode
 {
@@ -33,7 +34,7 @@ class Solution
 public:
     std::map<int, int> myMap;
     int pid = 0;
-    TreeNode *buildBinaryTree(std::vector<int> preorder, std::vector<int> inorder)
+    TreeNode *buildBinaryTree(const std::vector<int>& preorder, const std::vector<int>& inorder)
     {
         for (int i = 0; i < inorder.size(); i++)
         {
@@ -43,7 +44,7 @@ public:
         return build(preorder, inorder, 0, inorder.size() - 1);
     }
 
-    TreeNode *build(std::vector<int> preorder, std::vector<int> inorder, int start, int end)
+    TreeNode *build(const std::vector<int>& preorder, const std::vector<int>& inorder, const int &start, const int &end)
     {
         if (start > end)
             return nullptr;
@@ -65,40 +66,84 @@ public:
     std::map<int, int> myMap;
     int pid;
 
-    TreeNode *buildBinaryTree(std::vector<int> postorder, std::vector<int> inorder)
+    TreeNode *buildBinaryTree(const std::vector<int>& postorder, const std::vector<int>& inorder)
     {
-        for(int i=0;i<inorder.size();i++)
+        for (int i = 0; i < inorder.size(); i++)
         {
-            myMap[inorder[i]]=i;
+            myMap[inorder[i]] = i;
         }
-        pid=postorder.size()-1;
-        return build(postorder, inorder, 0, inorder.size()-1);
+        pid = postorder.size() - 1;
+        return build(postorder, inorder, 0, inorder.size() - 1);
     }
 
-    TreeNode *build(std::vector<int> postorder, std::vector<int> inorder, int start, int end)
+    TreeNode *build(const std::vector<int>& postorder, const std::vector<int>& inorder, const int &start, const int &end)
     {
-        if(start>end)
+        if (start > end)
             return nullptr;
 
         TreeNode *node = new TreeNode(postorder[pid--]);
 
         int iid = myMap[node->val];
 
-        node->right = build(postorder, inorder, iid+1, end);
-        node->left = build(postorder, inorder, start, iid-1);
-        
+        node->right = build(postorder, inorder, iid + 1, end);
+        node->left = build(postorder, inorder, start, iid - 1);
+
         return node;
     }
 };
 
+class Solution3
+{
+public:
+    TreeNode *buildBinaryTree(const std::vector<int>& input)
+    {
+        TreeNode *root = build(input, root, 0, input.size());
+        return root;
+    }
+
+    TreeNode *build(const std::vector<int>& input, TreeNode *root, const int &i, const int &n)
+    {
+        if(i<n)
+        {
+            TreeNode* node = new TreeNode(input[i]);
+            root = node;
+
+            root->left = build(input, root->left, 2*i+1, n);
+            root->right = build(input, root->right, 2*i+2, n);
+        }
+        return root;
+    }
+};
+
+// breadth first travesal
+void bft_Print(TreeNode *root)
+{
+    if(root==nullptr)
+        return;
+
+    std::queue<TreeNode*> q;
+    q.push(root);
+    while(!q.empty())
+    {
+        TreeNode *node = q.front();
+        q.pop();
+        std::cout<<node->val<<"\t";
+        if(node->left!=nullptr)
+            q.push(node->left);
+        if(node->right)
+            q.push(node->right);
+    }
+    std::cout<<"\n";
+}
+
 //inorder print
 void Print(const TreeNode *root)
 {
-    if(root==NULL)
+    if (root == NULL)
         return;
 
     Print(root->left);
-    std::cout<<root->val<<"\t";
+    std::cout << root->val << "\t";
     Print(root->right);
 }
 
@@ -106,18 +151,24 @@ int main(void)
 {
     //build binary tree from preorder and inorder
     Solution sol;
-    std::vector<int> preorder = {3,9,20,15,7};
-    std::vector<int> inorder = {9,3,15,20,7};
-    TreeNode *root=sol.buildBinaryTree(preorder, inorder);
+    std::vector<int> preorder = {3, 9, 20, 15, 7};
+    std::vector<int> inorder = {9, 3, 15, 20, 7};
+    TreeNode *root = sol.buildBinaryTree(preorder, inorder);
     Print(root);
 
-    std::cout<<"\n----------------------------------------------\n";
+    std::cout << "\n--------------------\n";
     //build binary tree from postorder and inorder
     Solution2 sol2;
     std::vector<int> in = {4, 8, 2, 5, 1, 6, 3, 7};
     std::vector<int> post = {8, 4, 5, 2, 6, 7, 3, 1};
     TreeNode *root2 = sol2.buildBinaryTree(post, in);
     Print(root2);
+
+    std::cout << "\n--------------------\n";
+    std::vector<int> input = {1, 2, 3, 4, 5, 6, 6, 6, 6, 6};
+    Solution3 sol3;
+    TreeNode *root3 = sol3.buildBinaryTree(input);
+    bft_Print(root3);
 
     return 0;
 }
