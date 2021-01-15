@@ -95,6 +95,37 @@ public:
 class Solution3
 {
 public:
+    std::map<int, int> myMap;
+    int preid=0;
+    TreeNode *buildBinaryTree(const std::vector<int> &pre, const std::vector<int> &post)
+    {
+        for(int i=0;i<post.size();i++)
+        {
+            myMap[post[i]]=i;
+        }
+
+        return build(pre, 0, pre.size()-1);
+    }
+
+    TreeNode *build(const std::vector<int> &pre, const int &start, const int &end)
+    {
+        if(start>end)
+            return nullptr;
+
+        TreeNode *node = new TreeNode(pre[preid++]);
+        if(start==end)
+            return node;
+        int postid = myMap[pre[preid]];
+
+        node->left = build(pre, start, postid);
+        node->right = build(pre, postid+1, end-1);
+        return node;
+    }
+};
+
+class Solution4
+{
+public:
     TreeNode *buildBinaryTree(const std::vector<int>& input)
     {
         TreeNode *root = build(input, root, 0, input.size());
@@ -150,13 +181,14 @@ void Print(const TreeNode *root)
 int main(void)
 {
     //build binary tree from preorder and inorder
+    std::cout << "\n--------- Build BT from Pre and In ---------\n";
     Solution sol;
     std::vector<int> preorder = {3, 9, 20, 15, 7};
     std::vector<int> inorder = {9, 3, 15, 20, 7};
     TreeNode *root = sol.buildBinaryTree(preorder, inorder);
     Print(root);
 
-    std::cout << "\n--------------------\n";
+    std::cout << "\n--------- Build BT from Post and In ---------\n";
     //build binary tree from postorder and inorder
     Solution2 sol2;
     std::vector<int> in = {4, 8, 2, 5, 1, 6, 3, 7};
@@ -164,11 +196,17 @@ int main(void)
     TreeNode *root2 = sol2.buildBinaryTree(post, in);
     Print(root2);
 
-    std::cout << "\n--------------------\n";
-    std::vector<int> input = {1, 2, 3, 4, 5, 6, 6, 6, 6, 6};
+    std::cout << "\n--------- Build BT from Pre and Post ---------\n";
     Solution3 sol3;
-    TreeNode *root3 = sol3.buildBinaryTree(input);
-    bft_Print(root3);
+    std::vector<int> pre = {1,2,4,5,3,6,7};
+    post = {4,5,2,6,7,3,1};
+    bft_Print(sol3.buildBinaryTree(pre, post));
+
+    std::cout << "\n--------- Build BT from Given Array ---------\n";
+    std::vector<int> input = {1, 2, 3, 4, 5, 6, 6, 6, 6, 6};
+    Solution4 sol4;
+    TreeNode *root4 = sol4.buildBinaryTree(input);
+    bft_Print(root4);
 
     return 0;
 }
